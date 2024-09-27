@@ -1,27 +1,27 @@
 export enum USER_ROLES {
-  NORMAL = "NORMAL",
-  ADMIN = "ADMIN"
+    NORMAL = "NORMAL",
+    ADMIN = "ADMIN"
 }
 
 export interface UserDB {
-  id: string,
-  name: string,
-  email: string,
-  password: string,
-  role: USER_ROLES,
-  created_at: string
+    id: string,
+    name: string,
+    email: string,
+    password: string,
+    role: USER_ROLES,
+    created_at: string
 }
 
 // é o modelo de User que o front receberá (sem password e createdAt camelCase)
 export interface UserModel {
-  id: string,
-  name: string,
-  email: string,
-  role: USER_ROLES,
-  createdAt: string
+    id: string,
+    name: string,
+    email: string,
+    role: USER_ROLES,
+    createdAt: string
 }
 
-export class User {    
+export class User {
     constructor(
         private id: string,
         private name: string,
@@ -29,12 +29,12 @@ export class User {
         private password: string,
         private role: USER_ROLES,
         private createdAt: string
-    ) {}
+    ) { }
 
     public getId(): string {
         return this.id
     }
-    
+
     public setId(value: string): void {
         this.id = value
     }
