@@ -16,7 +16,20 @@ export class UserBusiness {
   ) { }
 
   public getUsers = async (input: GetUsersInputDTO): Promise<GetUsersOutputDTO> => {
-    const { q } = input
+    const { q, token } = input
+
+    //geramos o payload a partir do token
+    const payload = this.tokenMananger.getPayload(token)
+
+    //validamos a assinatura do toke (vem null se inválido)
+    if (payload === null) {
+      throw new BadRequestError("Token inválido!")
+    }
+
+    //somente quem é ADMIN pode acessar a lista de usuários.
+    if (payload.role !== USER_ROLES.ADMIN) {
+      throw new BadRequestError("Somente os Admins podem acessar esse recurso!")
+    }
 
     const usersDB = await this.userDatabase.findUsers(q)
 
