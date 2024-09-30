@@ -5,6 +5,7 @@ import { SignupInputDTO, SignupOutputDTO } from "../dtos/signup.dto"
 import { BadRequestError } from "../errors/BadRequestError"
 import { NotFoundError } from "../errors/NotFoundError"
 import { USER_ROLES, User } from "../models/User"
+import { HashManager } from "../services/HashManager"
 import { IdGenerator } from "../services/IdGenerator"
 import { TokenMananger, TokenPayload } from "../services/TokenManager"
 
@@ -12,7 +13,8 @@ export class UserBusiness {
   constructor(
     private userDatabase: UserDatabase,
     private idGenerator: IdGenerator,
-    private tokenMananger: TokenMananger
+    private tokenMananger: TokenMananger,
+    private hashManager: HashManager
   ) { }
 
   public getUsers = async (input: GetUsersInputDTO): Promise<GetUsersOutputDTO> => {
@@ -57,11 +59,13 @@ export class UserBusiness {
 
     const id = this.idGenerator.generate()
 
+    const hashedPassword = await this.hashManager.hash(password)
+
     const newUser = new User(
       id,
       name,
       email,
-      password,
+      hashedPassword,
       USER_ROLES.NORMAL, // só é possível criar users com contas normais
       new Date().toISOString()
     )
@@ -85,9 +89,7 @@ export class UserBusiness {
     return output
   }
 
-  public login = async (
-    input: LoginInputDTO
-  ): Promise<LoginOutputDTO> => {
+  public login = async (input: LoginInputDTO): Promise<LoginOutputDTO> => {
     const { email, password } = input
 
     const userDB = await this.userDatabase.findUserByEmail(email)
@@ -96,13 +98,37 @@ export class UserBusiness {
       throw new NotFoundError("'email' não encontrado")
     }
 
-    if (password !== userDB.password) {
+    // o password hasheado está no BD
+    const hashedPassword = userDB.password
+
+    // o serviço hashManager analisa o password do body (plaintext) e o hash.
+    const isPasswordCorrect = await this.hashManager.compare(password, hashedPassword)
+
+    // valida o resultado
+    if (!isPasswordCorrect) {
       throw new BadRequestError("'email' ou 'password' incorretos")
     }
 
+    const user = new User(
+      userDB.id,
+      userDB.name,
+      userDB.email,
+      userDB.password,
+      userDB.role,
+      userDB.created_at
+    )
+
+    const payload: TokenPayload = {
+      id: user.getId(),
+      name: user.getName(),
+      role: user.getRole()
+    }
+
+    const token = this.tokenMananger.createToken(payload)
+
     const output: LoginOutputDTO = {
       message: "Login realizado com sucesso",
-      token: "token"
+      token
     }
 
     return output

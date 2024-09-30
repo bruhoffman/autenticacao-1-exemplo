@@ -1,4 +1,4 @@
--- Active: 1727108952581@@127.0.0.1@3306
+-- Active: 1727713561225@@127.0.0.1@3306
 CREATE TABLE users (
     id TEXT PRIMARY KEY UNIQUE NOT NULL,
     name TEXT NOT NULL,
@@ -16,24 +16,27 @@ INSERT INTO
         password,
         role
     )
+    --'fulano123',
 VALUES (
         'u001',
         'Fulano',
         'fulano@email.com',
-        'fulano123',
+        '$2a$12$.5lcDzkGIqnx0fnqAnXqjuvYIdv37KTPSHXH1l4NmHDxMhS5YAWJa',
         'NORMAL'
     ),
+    --'beltrana00',
     (
         'u002',
         'Beltrana',
         'beltrana@email.com',
-        'beltrana00',
+        "$2a$12$470s6hrVv.AGVvNRq4zck.XARmrBty/3hGnQCe41zlyizkyO5b.GC",
         'NORMAL'
     ),
+    --'astrodev99',
     (
         'u003',
         'Astrodev',
         'astrodev@email.com',
-        'astrodev99',
+        "$2a$12$xb3jIzWchtLwCd2faDZBh.wH5pEPTKkcxcHPKTjYjZn6k8P33wTdm",
         'ADMIN'
     );
